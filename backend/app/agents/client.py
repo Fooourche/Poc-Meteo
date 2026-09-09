@@ -7,7 +7,10 @@ from app.agents.registry import AgentDefinition, get_agent
 from app.core.config import get_settings
 from app.models.schemas import AgentAnalysis
 
-MAX_TOKENS = 1024
+MAX_TOKENS = 1536
+
+# (contenu de l'image, media_type, label affiche a l'agent, ex: "Echeance +24h")
+ImageItem = tuple[bytes, str, str]
 
 
 def _client() -> AsyncAnthropic:
@@ -18,20 +21,33 @@ def _client() -> AsyncAnthropic:
 async def _run_agent(
     agent: AgentDefinition,
     question: str,
-    image_bytes: bytes | None,
-    image_media_type: str | None,
+    images: list[ImageItem],
     weather_context: str | None,
 ) -> AgentAnalysis:
     settings = get_settings()
 
     content: list[dict] = []
-    if image_bytes is not None:
+    if len(images) > 1:
+        content.append(
+            {
+                "type": "text",
+                "text": (
+                    f"Les {len(images)} cartes suivantes forment un ensemble a analyser "
+                    "conjointement : soit une sequence temporelle (evolution dans le temps), "
+                    "soit plusieurs parametres complementaires pour une meme situation. "
+                    "Mets en evidence l'evolution ou les correlations entre elles, plutot que "
+                    "de les commenter separement."
+                ),
+            }
+        )
+    for image_bytes, media_type, label in images:
+        content.append({"type": "text", "text": f"Carte : {label}"})
         content.append(
             {
                 "type": "image",
                 "source": {
                     "type": "base64",
-                    "media_type": image_media_type or "image/png",
+                    "media_type": media_type or "image/png",
                     "data": base64.b64encode(image_bytes).decode("utf-8"),
                 },
             }
@@ -56,15 +72,13 @@ async def _run_agent(
 async def run_agents(
     agent_ids: list[str],
     question: str,
-    image_bytes: bytes | None = None,
-    image_media_type: str | None = None,
+    images: list[ImageItem] | None = None,
     weather_context: str | None = None,
 ) -> list[AgentAnalysis]:
     agents = [get_agent(agent_id) for agent_id in agent_ids]
     known_agents = [agent for agent in agents if agent is not None]
 
     tasks = [
-        _run_agent(agent, question, image_bytes, image_media_type, weather_context)
-        for agent in known_agents
+        _run_agent(agent, question, images or [], weather_context) for agent in known_agents
     ]
     return list(await asyncio.gather(*tasks))

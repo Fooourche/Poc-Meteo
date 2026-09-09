@@ -39,3 +39,10 @@ export interface EcmwfProductInfo {
   name: string;
   description: string;
 }
+
+export interface MapItem {
+  id: string;
+  label: string;
+  file: File;
+  previewUrl: string;
+}

@@ -2,9 +2,10 @@
 
 Prototype permettant de :
 
-- Uploader une carte meteo (radar, pression, satellite...), la recuperer
-  directement depuis **ECMWF Open Charts**, ou recuperer des donnees
-  meteo via une API publique (Open-Meteo).
+- Constituer une **sequence temporelle** (plusieurs echeances) ou une
+  **combinaison de parametres** (plusieurs cartes) a partir d'images
+  uploadees et/ou recuperees directement depuis **ECMWF Open Charts**,
+  et recuperer des donnees meteo via une API publique (Open-Meteo).
 - Connecter un ou plusieurs **agents IA d'expertise meteo** (bases sur
   Claude, Anthropic API) pour analyser ces cartes/donnees et obtenir des
   points de vue complementaires (previsionniste, vigilance/risques,
@@ -70,13 +71,32 @@ proxy les appels `/api` vers le backend sur le port 8000).
 
 ## Fonctionnement
 
-1. Fournissez une carte meteo : upload manuel, **ou** recuperation directe
-   depuis ECMWF Open Charts (produit + echeance + projection), et/ou
-   recuperez des donnees meteo par coordonnees GPS.
-2. Selectionnez un ou plusieurs agents IA (previsionniste, vigilance,
+1. Ajoutez une ou plusieurs cartes au panier "Cartes a analyser" : upload
+   manuel (plusieurs fichiers a la fois) et/ou recuperation depuis ECMWF
+   Open Charts (un clic sur "Ajouter a la sequence" par carte). Renommez
+   chaque carte (ex: "T+0h", "T+24h", "Precipitations") pour aider les
+   agents a s'y reperer, et reordonnez-les si besoin.
+2. Recuperez eventuellement des donnees meteo par coordonnees GPS.
+3. Selectionnez un ou plusieurs agents IA (previsionniste, vigilance,
    vulgarisateur).
-3. Posez une question libre et lancez l'analyse : chaque agent selectionne
-   repond independamment, avec son propre angle d'expertise.
+4. Posez une question libre et lancez l'analyse : toutes les cartes du
+   panier sont envoyees ensemble a chaque agent selectionne, qui repond
+   en tenant compte de l'evolution ou des correlations entre elles.
+
+## Sequences et combinaisons de cartes
+
+Le panier de cartes accepte deux usages avec la meme mecanique :
+
+- **Sequence temporelle** : ajoutez la meme carte ECMWF a plusieurs
+  echeances (`valid_time`) successives pour que les agents decrivent
+  une evolution (ex: creusement d'une depression sur 72h).
+- **Combinaison de parametres** : ajoutez plusieurs produits differents
+  pour la meme echeance (ex: pression+vent et precipitations) pour que
+  les agents croisent les informations.
+
+Toutes les cartes du panier sont envoyees en une seule requete a Claude
+(avec leur libelle), plutot qu'analysees separement : le modele peut
+ainsi comparer directement les images entre elles.
 
 ## Cartes ECMWF Open Charts
 
@@ -85,8 +105,8 @@ Le panneau "Carte ECMWF Open Charts" interroge l'API publique
 une image de prevision (ex: `medium-mslp-wind850` pour pression + vent).
 Le nom exact d'un produit ou d'une projection s'obtient sur
 [charts.ecmwf.int](https://charts.ecmwf.int/) via le bouton "Download"
-d'une carte (documentation Swagger associee). L'image recuperee est
-ensuite envoyee aux agents exactement comme une image uploadee.
+d'une carte (documentation Swagger associee). Chaque carte recuperee est
+ajoutee au panier de cartes, au meme titre qu'une image uploadee.
 
 ## Ajouter un nouvel agent
 

@@ -4,7 +4,7 @@ import { fetchEcmwfChart, fetchEcmwfProducts } from "../api/client";
 import type { EcmwfProductInfo } from "../types";
 
 interface Props {
-  onImageChange: (file: File | null) => void;
+  onAddImage: (file: File, label: string) => void;
 }
 
 function isoAt(offsetHours: number): string {
@@ -13,7 +13,7 @@ function isoAt(offsetHours: number): string {
   return date.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
-export function EcmwfChartPicker({ onImageChange }: Props) {
+export function EcmwfChartPicker({ onAddImage }: Props) {
   const [products, setProducts] = useState<EcmwfProductInfo[]>([]);
   const [productId, setProductId] = useState("medium-mslp-wind850");
   const [baseTime, setBaseTime] = useState(isoAt(0));
@@ -36,11 +36,10 @@ export function EcmwfChartPicker({ onImageChange }: Props) {
     try {
       const blob = await fetchEcmwfChart({ product: productId, baseTime, validTime, projection });
       const file = new File([blob], `${productId}.png`, { type: blob.type || "image/png" });
-      onImageChange(file);
+      onAddImage(file, `${productId} (valid ${validTime})`);
       setPreviewUrl(URL.createObjectURL(blob));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
-      onImageChange(null);
     } finally {
       setLoading(false);
     }
@@ -82,14 +81,16 @@ export function EcmwfChartPicker({ onImageChange }: Props) {
       </div>
 
       <button onClick={handleFetch} disabled={loading || !productId}>
-        {loading ? "Recuperation..." : "Recuperer la carte"}
+        {loading ? "Recuperation..." : "Ajouter a la sequence"}
       </button>
 
       {error && <p className="error">{error}</p>}
       {previewUrl && <img src={previewUrl} alt="Carte ECMWF" className="map-preview" />}
 
       <p className="agent-description">
-        Liste complete des produits et projections disponibles sur{" "}
+        Astuce : changez la date d'echeance (valid_time) et cliquez a nouveau pour accumuler
+        plusieurs echeances (sequence temporelle), ou changez de produit pour combiner plusieurs
+        parametres. Liste complete sur{" "}
         <a href="https://charts.ecmwf.int/" target="_blank" rel="noreferrer">
           charts.ecmwf.int
         </a>{" "}

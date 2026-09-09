@@ -25,8 +25,12 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
   vulgarisateur...). Ajouter un agent = ajouter une entree ici.
 - `app/agents/client.py` : appelle l'API Anthropic (Claude) pour chaque
   agent selectionne, en parallele (`asyncio.gather`). Supporte l'envoi
-  d'une image (carte meteo, vision) et/ou d'un contexte texte (donnees
-  meteo JSON).
+  d'une **liste de cartes labellisees** (0..N images, chacune avec un
+  libelle du type "T+0h", "T+24h", "Precipitations") et/ou d'un contexte
+  texte (donnees meteo JSON). Quand plusieurs images sont fournies, une
+  instruction est ajoutee au message pour que l'agent raisonne sur
+  l'ensemble (evolution temporelle ou correlation entre parametres)
+  plutot que de commenter chaque image isolement.
 - `app/services/weather_service.py` : client pour l'API Open-Meteo
   (gratuite, sans cle) pour recuperer meteo courante + previsions.
 - `app/services/ecmwf_service.py` : client pour l'API publique **ECMWF
@@ -34,7 +38,8 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
   de l'image generee pour un produit/echeance/projection donnes, puis
   telecharge l'image (PNG/PDF).
 - `app/api/routes_agents.py` : `GET /api/agents` (liste), `POST
-  /api/agents/analyze` (upload image + selection agents + question).
+  /api/agents/analyze` (0..N fichiers `images[]` + `labels[]` associes,
+  selection agents, question, contexte meteo optionnel).
 - `app/api/routes_weather.py` : `GET /api/weather/forecast?latitude=&longitude=`.
 - `app/api/routes_ecmwf.py` : `GET /api/ecmwf/products` (suggestions),
   `GET /api/ecmwf/chart?product=&base_time=&valid_time=&projection=&level=`
@@ -42,12 +47,17 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 
 ## Frontend (`frontend/`)
 
-- `src/components/MapUploader.tsx` : upload manuel d'une image de carte
-  meteo.
+- `src/components/MapUploader.tsx` : upload manuel d'une ou plusieurs
+  images de carte meteo en une fois.
 - `src/components/EcmwfChartPicker.tsx` : recuperation d'une carte
-  directement depuis ECMWF Open Charts (produit, echeance, projection).
-  Ecrit dans le meme etat `image` que `MapUploader` : les deux sources
-  sont interchangeables du point de vue des agents.
+  depuis ECMWF Open Charts (produit, echeance, projection). Chaque clic
+  sur "Ajouter a la sequence" ajoute une carte supplementaire (ex:
+  plusieurs echeances du meme produit, ou plusieurs produits pour la
+  meme echeance).
+- `src/components/MapSequence.tsx` : **panier de cartes** partage par
+  `MapUploader` et `EcmwfChartPicker`. Affiche la liste des cartes
+  accumulees (vignette + libelle editable), permet de les renommer, les
+  reordonner (monter/descendre) ou les retirer avant analyse.
 - `src/components/WeatherPanel.tsx` : recuperation de donnees meteo par
   coordonnees GPS (via le backend, qui appelle Open-Meteo).
 - `src/components/AgentSelector.tsx` : selection d'un ou plusieurs agents
@@ -56,13 +66,37 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
   de chaque agent selectionne.
 - `src/api/client.ts` : appels HTTP vers le backend.
 
+## Sequences et combinaisons de cartes
+
+Plutot que d'analyser les cartes une par une, le frontend construit une
+**liste ordonnee et labellisee** de cartes (`MapItem[]`) alimentee par
+l'upload et/ou ECMWF Open Charts. Toute la liste est envoyee en une
+seule requete a `/api/agents/analyze` : cote backend, `agents/client.py`
+place chaque image dans le message Claude precedee de son libelle, et
+ajoute une instruction explicite d'analyse conjointe des qu'il y a plus
+d'une carte. Cela couvre deux usages avec la meme mecanique :
+
+- **Sequence temporelle** : plusieurs echeances du meme produit (ex:
+  "T+0h", "T+24h", "T+48h") pour decrire une evolution.
+- **Combinaison de parametres** : plusieurs produits pour la meme
+  echeance (ex: "Pression + vent", "Precipitations") pour croiser les
+  informations.
+
+On aurait pu a la place composer une seule image fusionnee (montage/
+overlay) cote backend, mais cela demanderait un alignement geographique
+precis des cartes source et perdrait l'information semantique de chaque
+couche. Laisser Claude raisonner sur plusieurs images labellisees est
+plus robuste pour un prototype (voir ROADMAP.md pour une eventuelle
+composition d'image reelle si un besoin visuel specifique apparait).
+
 ## Multi-agents
 
 Le prototype permet de selectionner **plusieurs agents simultanement** :
-chaque agent recoit la meme image/contexte meteo mais avec son propre
-system prompt, et repond independamment. Les reponses sont affichees
-en parallele pour comparaison (ex: le previsionniste donne une analyse
-technique pendant que le vulgarisateur donne une explication simple).
+chaque agent recoit le meme ensemble de cartes/contexte meteo mais avec
+son propre system prompt, et repond independamment. Les reponses sont
+affichees en parallele pour comparaison (ex: le previsionniste donne une
+analyse technique pendant que le vulgarisateur donne une explication
+simple).
 
 Evolution possible : un agent "orchestrateur" qui route automatiquement
 vers le bon expert selon la question, ou qui synthetise les reponses des

@@ -1,27 +1,27 @@
-import { useState } from "react";
-
 interface Props {
-  onImageChange: (file: File | null) => void;
+  onAddImages: (files: File[]) => void;
 }
 
-export function MapUploader({ onImageChange }: Props) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+export function MapUploader({ onAddImages }: Props) {
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null;
-    onImageChange(file);
-    setPreviewUrl(file ? URL.createObjectURL(file) : null);
+    const files = event.target.files ? Array.from(event.target.files) : [];
+    if (files.length > 0) {
+      onAddImages(files);
+    }
+    // reinitialise le champ pour pouvoir reselectionner le meme fichier plus tard
+    event.target.value = "";
   }
 
   return (
     <div className="panel">
       <h2>Carte meteo (image)</h2>
-      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <input type="file" accept="image/*" multiple onChange={handleFileChange} />
       <p className="agent-description">
-        Sur mobile, vous pouvez prendre une photo directement (ex: une carte affichee a la TV ou
-        dans un journal) ou choisir une image existante.
+        Vous pouvez selectionner plusieurs images a la fois (ex: une sequence de cartes a
+        differentes echeances). Sur mobile, le selecteur permet aussi de prendre une photo
+        directement. Chaque image ajoutee apparait ci-dessous dans la liste des cartes a
+        analyser.
       </p>
-      {previewUrl && <img src={previewUrl} alt="Apercu de la carte meteo" className="map-preview" />}
     </div>
   );
 }

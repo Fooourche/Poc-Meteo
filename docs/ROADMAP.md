@@ -8,6 +8,10 @@
 - Documentation (architecture, roadmap).
 - Source de cartes supplementaire : ECMWF Open Charts (API publique,
   sans cle), en complement de l'upload manuel.
+- Analyse par **sequence/combinaison de cartes** : le panier `MapItem[]`
+  regroupe plusieurs cartes labellisees (upload multiple + ajouts
+  successifs ECMWF) envoyees en une seule requete aux agents, qui
+  raisonnent sur l'ensemble plutot que carte par carte.
 
 ## Etape 1 - Faire tourner le prototype en local
 
@@ -27,6 +31,13 @@
   cote UI (deja partiellement fait via le champ `error` par agent).
 - Ajouter des tests avec de vraies cartes meteo (radar Meteo-France,
   cartes de pression, images satellite) pour calibrer les system prompts.
+- Limiter le nombre/poids total des cartes envoyees dans une sequence
+  (taille de requete, cout et latence API croissent avec le nombre
+  d'images) ; avertir l'utilisateur au-dela d'un seuil raisonnable
+  (ex: 6-8 cartes).
+- Explorer, si un besoin visuel precis apparait, une composition d'image
+  reelle cote backend (montage/overlay aligne georeferencement) en
+  complement de l'envoi de plusieurs images labellisees a Claude.
 
 ## Etape 3 - Enrichir les agents
 

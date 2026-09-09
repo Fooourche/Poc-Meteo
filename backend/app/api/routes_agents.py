@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from app.agents.client import run_agents
+from app.agents.client import ImageItem, run_agents
 from app.agents.registry import list_agents
 from app.models.schemas import AgentAnalysis, AgentInfo
 
@@ -20,22 +20,24 @@ async def analyze(
     agent_ids: str = Form(..., description="Identifiants d'agents separes par des virgules"),
     question: str = Form(""),
     weather_context: str | None = Form(None, description="Contexte meteo au format JSON"),
-    image: UploadFile | None = None,
+    images: list[UploadFile] = File(default=[]),
+    labels: list[str] = Form(default=[]),
 ) -> list[AgentAnalysis]:
     ids = [agent_id.strip() for agent_id in agent_ids.split(",") if agent_id.strip()]
     if not ids:
         raise HTTPException(status_code=400, detail="Au moins un agent_id est requis")
 
-    image_bytes: bytes | None = None
-    image_media_type: str | None = None
-    if image is not None:
-        image_bytes = await image.read()
-        image_media_type = image.content_type
+    image_items: list[ImageItem] = []
+    for i, image in enumerate(images):
+        content = await image.read()
+        if not content:
+            continue
+        label = labels[i] if i < len(labels) and labels[i] else f"Carte {i + 1}"
+        image_items.append((content, image.content_type or "image/png", label))
 
     return await run_agents(
         agent_ids=ids,
         question=question,
-        image_bytes=image_bytes,
-        image_media_type=image_media_type,
+        images=image_items,
         weather_context=weather_context,
     )

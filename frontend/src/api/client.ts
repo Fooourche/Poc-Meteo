@@ -1,4 +1,10 @@
-import type { AgentAnalysis, AgentInfo, EcmwfProductInfo, WeatherForecastResponse } from "../types";
+import type {
+  AgentAnalysis,
+  AgentInfo,
+  EcmwfProductInfo,
+  MapItem,
+  WeatherForecastResponse,
+} from "../types";
 
 async function handle<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -28,7 +34,7 @@ export async function fetchForecast(
 export interface AnalyzeParams {
   agentIds: string[];
   question: string;
-  image?: File | null;
+  images: MapItem[];
   weatherContext?: string | null;
 }
 
@@ -39,8 +45,9 @@ export async function analyzeWithAgents(params: AnalyzeParams): Promise<AgentAna
   if (params.weatherContext) {
     formData.set("weather_context", params.weatherContext);
   }
-  if (params.image) {
-    formData.set("image", params.image);
+  for (const item of params.images) {
+    formData.append("images", item.file);
+    formData.append("labels", item.label);
   }
 
   const response = await fetch("/api/agents/analyze", {
