@@ -17,6 +17,10 @@ export function MapUploader({ onImageChange }: Props) {
     <div className="panel">
       <h2>Carte meteo (image)</h2>
       <input type="file" accept="image/*" onChange={handleFileChange} />
+      <p className="agent-description">
+        Sur mobile, vous pouvez prendre une photo directement (ex: une carte affichee a la TV ou
+        dans un journal) ou choisir une image existante.
+      </p>
       {previewUrl && <img src={previewUrl} alt="Apercu de la carte meteo" className="map-preview" />}
     </div>
   );
