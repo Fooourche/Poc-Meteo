@@ -6,6 +6,20 @@ import type {
   WeatherForecastResponse,
 } from "../types";
 
+// En local, VITE_API_BASE_URL est vide : le proxy Vite (vite.config.ts) redirige
+// deja /api vers localhost:8000. En production, Render la renseigne (voir render.yaml).
+function normalizeBaseUrl(value: string): string {
+  if (!value) return "";
+  const withScheme = value.startsWith("http") ? value : `https://${value}`;
+  return withScheme.replace(/\/+$/, "");
+}
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL ?? "");
+
+function apiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
+
 async function handle<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.text();
@@ -15,7 +29,7 @@ async function handle<T>(response: Response): Promise<T> {
 }
 
 export async function fetchAgents(): Promise<AgentInfo[]> {
-  const response = await fetch("/api/agents");
+  const response = await fetch(apiUrl("/api/agents"));
   return handle<AgentInfo[]>(response);
 }
 
@@ -27,7 +41,7 @@ export async function fetchForecast(
     latitude: String(latitude),
     longitude: String(longitude),
   });
-  const response = await fetch(`/api/weather/forecast?${params.toString()}`);
+  const response = await fetch(apiUrl(`/api/weather/forecast?${params.toString()}`));
   return handle<WeatherForecastResponse>(response);
 }
 
@@ -50,7 +64,7 @@ export async function analyzeWithAgents(params: AnalyzeParams): Promise<AgentAna
     formData.append("labels", item.label);
   }
 
-  const response = await fetch("/api/agents/analyze", {
+  const response = await fetch(apiUrl("/api/agents/analyze"), {
     method: "POST",
     body: formData,
   });
@@ -58,7 +72,7 @@ export async function analyzeWithAgents(params: AnalyzeParams): Promise<AgentAna
 }
 
 export async function fetchEcmwfProducts(): Promise<EcmwfProductInfo[]> {
-  const response = await fetch("/api/ecmwf/products");
+  const response = await fetch(apiUrl("/api/ecmwf/products"));
   return handle<EcmwfProductInfo[]>(response);
 }
 
@@ -77,7 +91,7 @@ export async function fetchEcmwfChart(params: EcmwfChartParams): Promise<Blob> {
   if (params.projection) query.set("projection", params.projection);
   if (params.level) query.set("level", params.level);
 
-  const response = await fetch(`/api/ecmwf/chart?${query.toString()}`);
+  const response = await fetch(apiUrl(`/api/ecmwf/chart?${query.toString()}`));
   if (!response.ok) {
     const body = await response.text();
     throw new Error(`Erreur API ECMWF (${response.status}): ${body}`);

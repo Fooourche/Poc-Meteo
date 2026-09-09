@@ -13,6 +13,14 @@
   successifs ECMWF) envoyees en une seule requete aux agents, qui
   raisonnent sur l'ensemble plutot que carte par carte.
 
+## Etape 1bis - Deploiement (fait)
+
+- Blueprint Render (`render.yaml`) : backend FastAPI + frontend statique,
+  plan free des deux cotes (0 EUR/mois d'infra). Voir `docs/DEPLOY.md`
+  pour la procedure de deploiement.
+- URL d'API frontend rendue configurable (`VITE_API_BASE_URL`) pour
+  fonctionner aussi bien en local (proxy Vite) qu'en production.
+
 ## Etape 1 - Faire tourner le prototype en local
 
 1. `cd backend && python -m venv .venv && source .venv/bin/activate`
@@ -63,8 +71,11 @@
 
 ## Etape 5 - Durcissement produit
 
-- Authentification utilisateur si le produit devient multi-utilisateurs.
+- Protection d'acces minimale (mot de passe partage ou authentification)
+  avant un partage plus large du lien Render, deploye sans authentification
+  pour l'instant.
 - Gestion des couts API (cache des reponses, limites de taux, monitoring
   des tokens consommes par agent).
-- Deploiement (conteneurisation backend + build frontend statique).
+- Passer le backend Render au plan payant si le cold start (free tier)
+  devient genant a l'usage.
 - Tests end-to-end (upload -> analyse -> affichage).

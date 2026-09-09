@@ -28,13 +28,16 @@ Poc-Meteo/
 │       ├── api/         # Client HTTP vers le backend
 │       ├── components/  # UI (upload carte, meteo, agents, resultats)
 │       └── types/
-└── docs/
-    ├── ARCHITECTURE.md
-    └── ROADMAP.md
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── ROADMAP.md
+│   └── DEPLOY.md
+└── render.yaml       # Blueprint de deploiement Render (backend + frontend)
 ```
 
-Voir `docs/ARCHITECTURE.md` pour le detail des choix techniques et
-`docs/ROADMAP.md` pour les prochaines etapes.
+Voir `docs/ARCHITECTURE.md` pour le detail des choix techniques,
+`docs/ROADMAP.md` pour les prochaines etapes, et `docs/DEPLOY.md` pour
+deployer gratuitement le prototype sur Render.
 
 ## Demarrage rapide
 
@@ -68,6 +71,12 @@ npm run dev
 
 L'application est disponible sur `http://localhost:5173` (le serveur Vite
 proxy les appels `/api` vers le backend sur le port 8000).
+
+### Deploiement
+
+Un Blueprint Render (`render.yaml`) est fourni pour deployer gratuitement
+le backend et le frontend en quelques clics. Voir `docs/DEPLOY.md` pour
+la procedure complete.
 
 ## Fonctionnement
 

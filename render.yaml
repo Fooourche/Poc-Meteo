@@ -1,0 +1,48 @@
+# Blueprint Render (https://render.com/docs/blueprint-spec)
+#
+# Deploie deux services depuis ce meme depot :
+# - poc-meteo-backend  : API FastAPI (plan free, s'endort apres 15 min d'inactivite)
+# - poc-meteo-frontend : site statique React/Vite (plan free, CDN, pas de cold start)
+#
+# A la creation du Blueprint sur Render, penser a selectionner explicitement
+# la branche a deployer (le depot n'a pas de branche "main" pour l'instant).
+# Voir docs/DEPLOY.md pour la procedure complete.
+
+services:
+  - type: web
+    name: poc-meteo-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
+      - key: CORS_ORIGINS
+        fromService:
+          name: poc-meteo-frontend
+          type: web
+          property: host
+
+  - type: web
+    name: poc-meteo-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          name: poc-meteo-backend
+          type: web
+          property: host
