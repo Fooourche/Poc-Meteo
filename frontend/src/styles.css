@@ -1,0 +1,98 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  background: white;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.agent-list {
+  list-style: none;
+  padding: 0;
+}
+
+.agent-list li {
+  margin-bottom: 10px;
+}
+
+.agent-list label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agent-description {
+  font-size: 0.85em;
+  color: #555;
+}
+
+.map-preview {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+.coords-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.coords-row label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85em;
+}
+
+.agent-result {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.error {
+  color: #b00020;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: white;
+}
+
+button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
