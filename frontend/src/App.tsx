@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { analyzeWithAgents, fetchAgents } from "./api/client";
 import { AgentSelector } from "./components/AgentSelector";
 import { AnalysisResult } from "./components/AnalysisResult";
+import { EcmwfChartPicker } from "./components/EcmwfChartPicker";
 import { MapUploader } from "./components/MapUploader";
 import { WeatherPanel } from "./components/WeatherPanel";
 import type { AgentAnalysis, AgentInfo, WeatherForecastResponse } from "./types";
@@ -67,12 +68,14 @@ export default function App() {
 
       <section className="grid">
         <MapUploader onImageChange={setImage} />
+        <EcmwfChartPicker onImageChange={setImage} />
         <WeatherPanel onForecastLoaded={setForecast} />
         <AgentSelector agents={agents} selectedIds={selectedAgentIds} onToggle={toggleAgent} />
       </section>
 
       <section className="panel">
         <h2>Question aux agents</h2>
+        {image && <p className="agent-description">Image active pour l'analyse : {image.name}</p>}
         <textarea value={question} onChange={(e) => setQuestion(e.target.value)} rows={3} />
         <button onClick={handleAnalyze} disabled={loading}>
           {loading ? "Analyse en cours..." : "Analyser"}

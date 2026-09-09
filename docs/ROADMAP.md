@@ -6,6 +6,8 @@
 - Frontend React/TS (upload image, recuperation meteo, selection agents,
   affichage des analyses).
 - Documentation (architecture, roadmap).
+- Source de cartes supplementaire : ECMWF Open Charts (API publique,
+  sans cle), en complement de l'upload manuel.
 
 ## Etape 1 - Faire tourner le prototype en local
 
@@ -44,6 +46,9 @@
   comparer des previsions dans le temps.
 - Explorer l'integration de donnees radar/satellite reelles (ex: API
   Meteo-France ouvertes si disponibles).
+- Etendre la liste des produits ECMWF Open Charts suggeres (registre
+  `SUGGESTED_PRODUCTS`) une fois les identifiants exacts verifies pour
+  chaque type de carte utile (precipitations, temperature, neige...).
 
 ## Etape 5 - Durcissement produit
 

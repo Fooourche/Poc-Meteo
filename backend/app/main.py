@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes_agents import router as agents_router
+from app.api.routes_ecmwf import router as ecmwf_router
 from app.api.routes_weather import router as weather_router
 from app.core.config import get_settings
 
@@ -18,6 +19,7 @@ app.add_middleware(
 
 app.include_router(agents_router)
 app.include_router(weather_router)
+app.include_router(ecmwf_router)
 
 
 @app.get("/api/health")

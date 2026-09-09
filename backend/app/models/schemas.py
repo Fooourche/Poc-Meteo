@@ -39,3 +39,9 @@ class WeatherForecastResponse(BaseModel):
     longitude: float
     current: WeatherCurrent
     daily: list[WeatherDaily] = Field(default_factory=list)
+
+
+class EcmwfProductInfo(BaseModel):
+    id: str
+    name: str
+    description: str

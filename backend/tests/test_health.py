@@ -16,3 +16,10 @@ def test_list_agents() -> None:
     assert response.status_code == 200
     agent_ids = {agent["id"] for agent in response.json()}
     assert {"previsionniste", "vigilance", "vulgarisateur"} <= agent_ids
+
+
+def test_list_ecmwf_products() -> None:
+    response = client.get("/api/ecmwf/products")
+    assert response.status_code == 200
+    product_ids = {product["id"] for product in response.json()}
+    assert "medium-mslp-wind850" in product_ids

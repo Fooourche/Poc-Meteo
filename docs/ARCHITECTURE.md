@@ -6,10 +6,13 @@
 frontend (React/TS, Vite)  <-->  backend (FastAPI)  <-->  Anthropic API (Claude, vision)
                                         |
                                         +--> Open-Meteo API (donnees meteo)
+                                        |
+                                        +--> ECMWF Open Charts API (cartes meteo)
 ```
 
-Le frontend ne parle jamais directement a Anthropic ou a Open-Meteo : tout
-transite par le backend, qui est le seul a detenir la cle API Anthropic.
+Le frontend ne parle jamais directement a Anthropic, Open-Meteo ou ECMWF :
+tout transite par le backend, qui est le seul a detenir la cle API
+Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 
 ## Backend (`backend/`)
 
@@ -26,13 +29,25 @@ transite par le backend, qui est le seul a detenir la cle API Anthropic.
   meteo JSON).
 - `app/services/weather_service.py` : client pour l'API Open-Meteo
   (gratuite, sans cle) pour recuperer meteo courante + previsions.
+- `app/services/ecmwf_service.py` : client pour l'API publique **ECMWF
+  Open Charts** (`charts.ecmwf.int/opencharts-api/v1/`). Recupere l'URL
+  de l'image generee pour un produit/echeance/projection donnes, puis
+  telecharge l'image (PNG/PDF).
 - `app/api/routes_agents.py` : `GET /api/agents` (liste), `POST
   /api/agents/analyze` (upload image + selection agents + question).
 - `app/api/routes_weather.py` : `GET /api/weather/forecast?latitude=&longitude=`.
+- `app/api/routes_ecmwf.py` : `GET /api/ecmwf/products` (suggestions),
+  `GET /api/ecmwf/chart?product=&base_time=&valid_time=&projection=&level=`
+  (proxy image, evite le CORS et garde l'appel externe cote backend).
 
 ## Frontend (`frontend/`)
 
-- `src/components/MapUploader.tsx` : upload d'une image de carte meteo.
+- `src/components/MapUploader.tsx` : upload manuel d'une image de carte
+  meteo.
+- `src/components/EcmwfChartPicker.tsx` : recuperation d'une carte
+  directement depuis ECMWF Open Charts (produit, echeance, projection).
+  Ecrit dans le meme etat `image` que `MapUploader` : les deux sources
+  sont interchangeables du point de vue des agents.
 - `src/components/WeatherPanel.tsx` : recuperation de donnees meteo par
   coordonnees GPS (via le backend, qui appelle Open-Meteo).
 - `src/components/AgentSelector.tsx` : selection d'un ou plusieurs agents
@@ -60,5 +75,10 @@ autres agents (voir ROADMAP.md).
   d'image scientifique (OpenCV, xarray, cartopy...) si besoin plus tard.
 - **Open-Meteo** : API meteo gratuite sans cle API, ideale pour un
   prototype. Remplacable par Meteo-France, OpenWeatherMap, etc.
+- **ECMWF Open Charts** : cartes meteo officielles du CEPMMT (pression,
+  vent, visibilite, meteogrammes...), gratuites et sans cle API. Bonne
+  source de cartes "reelles" pour tester les agents au-dela des uploads
+  manuels. Verifier les conditions d'utilisation sur charts.ecmwf.int
+  avant un usage en production (attribution, volumetrie).
 - **Claude (Anthropic API)** : modele multimodal capable d'analyser une
   image de carte meteo directement, sans pipeline de vision separe.

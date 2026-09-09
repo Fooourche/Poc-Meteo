@@ -2,8 +2,9 @@
 
 Prototype permettant de :
 
-- Uploader une carte meteo (radar, pression, satellite...) ou recuperer des
-  donnees meteo via une API publique (Open-Meteo).
+- Uploader une carte meteo (radar, pression, satellite...), la recuperer
+  directement depuis **ECMWF Open Charts**, ou recuperer des donnees
+  meteo via une API publique (Open-Meteo).
 - Connecter un ou plusieurs **agents IA d'expertise meteo** (bases sur
   Claude, Anthropic API) pour analyser ces cartes/donnees et obtenir des
   points de vue complementaires (previsionniste, vigilance/risques,
@@ -69,12 +70,23 @@ proxy les appels `/api` vers le backend sur le port 8000).
 
 ## Fonctionnement
 
-1. Uploadez une image de carte meteo et/ou recuperez des donnees meteo par
-   coordonnees GPS.
+1. Fournissez une carte meteo : upload manuel, **ou** recuperation directe
+   depuis ECMWF Open Charts (produit + echeance + projection), et/ou
+   recuperez des donnees meteo par coordonnees GPS.
 2. Selectionnez un ou plusieurs agents IA (previsionniste, vigilance,
    vulgarisateur).
 3. Posez une question libre et lancez l'analyse : chaque agent selectionne
    repond independamment, avec son propre angle d'expertise.
+
+## Cartes ECMWF Open Charts
+
+Le panneau "Carte ECMWF Open Charts" interroge l'API publique
+`charts.ecmwf.int/opencharts-api/v1/` (aucune cle requise) pour recuperer
+une image de prevision (ex: `medium-mslp-wind850` pour pression + vent).
+Le nom exact d'un produit ou d'une projection s'obtient sur
+[charts.ecmwf.int](https://charts.ecmwf.int/) via le bouton "Download"
+d'une carte (documentation Swagger associee). L'image recuperee est
+ensuite envoyee aux agents exactement comme une image uploadee.
 
 ## Ajouter un nouvel agent
 

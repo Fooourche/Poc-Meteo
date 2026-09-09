@@ -33,3 +33,9 @@ export interface WeatherForecastResponse {
   current: WeatherCurrent;
   daily: WeatherDaily[];
 }
+
+export interface EcmwfProductInfo {
+  id: string;
+  name: string;
+  description: string;
+}
