@@ -12,7 +12,19 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        # Render (fromService/host) peut fournir un nom d'hote sans schema ;
+        # sans "https://", la comparaison avec l'en-tete Origin du navigateur
+        # ne matche jamais et CORS bloque tout (vu cote client comme un
+        # generique "Failed to fetch").
+        origins = []
+        for origin in self.cors_origins.split(","):
+            origin = origin.strip()
+            if not origin:
+                continue
+            if not origin.startswith("http"):
+                origin = f"https://{origin}"
+            origins.append(origin)
+        return origins
 
 
 @lru_cache

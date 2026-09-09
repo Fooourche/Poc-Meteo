@@ -56,6 +56,26 @@ Chaque `git push` sur la branche configuree dans Render redeclenche
 automatiquement un build + deploiement des deux services (comportement
 par defaut de Render). Aucune action manuelle n'est necessaire.
 
+## Depannage
+
+- **"Failed to fetch" dans l'appli (ex: en recuperant une carte ECMWF ou
+  la liste des agents)** : c'est le message generique du navigateur quand
+  une requete est bloquee par CORS. Verifier :
+  1. Que `https://<votre-backend>.onrender.com/api/health` repond bien
+     `{"status":"ok"}` dans le navigateur (sinon le backend est en panne
+     ou encore en train de demarrer : re-essayer apres ~1 min).
+  2. Sur le dashboard Render, service `poc-meteo-backend` > Environment,
+     que `CORS_ORIGINS` contient bien un schema (`https://...`). Depuis
+     la version courante, `config.py` ajoute automatiquement `https://`
+     si Render fournit uniquement le nom d'hote via `fromService`/`host`,
+     donc ce cas est deja couvert par le code ; un redeploiement du
+     backend suffit si l'erreur persistait avec une version anterieure.
+- **Erreur au clic sur "Analyser"** : consulter les Logs du service
+  `poc-meteo-backend` (cle Anthropic mal renseignee, credit insuffisant
+  sur console.anthropic.com, etc.). L'erreur exacte de l'API Anthropic
+  est aussi affichee directement dans l'interface, sous le nom de
+  l'agent concerne.
+
 ## Limites du plan gratuit et evolutions possibles
 
 - **Cold start backend** : apres 15 min sans requete, le service web
