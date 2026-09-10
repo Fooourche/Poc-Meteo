@@ -25,3 +25,14 @@ app.include_router(ecmwf_router)
 @app.get("/api/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/debug/config")
+async def debug_config() -> dict[str, object]:
+    """Endpoint temporaire pour diagnostiquer la config CORS en production
+    sans avoir a fouiller le dashboard Render. A retirer une fois le
+    deploiement stabilise (voir docs/DEPLOY.md)."""
+    return {
+        "cors_origins_raw": settings.cors_origins,
+        "cors_origins_resolved": settings.cors_origins_list,
+    }
