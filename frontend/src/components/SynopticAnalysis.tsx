@@ -27,53 +27,62 @@ function addHours(isoString: string, hours: number): string {
 }
 
 export function SynopticAnalysis({ onAddImage }: Props) {
-  const [parameterId, setParameterId] = useState(SYNOPTIC_PARAMETERS[0].id);
-  const [product, setProduct] = useState(SYNOPTIC_PARAMETERS[0].product);
-  const [level, setLevel] = useState(SYNOPTIC_PARAMETERS[0].level ?? "");
-  const [label, setLabel] = useState(SYNOPTIC_PARAMETERS[0].label);
+  const [selectedIds, setSelectedIds] = useState<string[]>([SYNOPTIC_PARAMETERS[0].id]);
   const [baseTime, setBaseTime] = useState(latestRunTime());
   const [projection, setProjection] = useState("opencharts_central_europe");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
 
-  function handleParameterChange(id: string) {
-    const preset = SYNOPTIC_PARAMETERS.find((candidate) => candidate.id === id);
-    setParameterId(id);
-    if (preset) {
-      setProduct(preset.product);
-      setLevel(preset.level ?? "");
-      setLabel(preset.label);
-    }
+  function toggleParameter(id: string) {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((candidate) => candidate !== id) : [...current, id],
+    );
   }
 
-  const currentPreset = SYNOPTIC_PARAMETERS.find((candidate) => candidate.id === parameterId);
-
   async function handleLoadWeek() {
+    const params = SYNOPTIC_PARAMETERS.filter((candidate) => selectedIds.includes(candidate.id));
+    if (params.length === 0) return;
+
     setLoading(true);
     setErrors([]);
-    setProgress({ done: 0, total: STEP_HOURS.length });
+    const total = STEP_HOURS.length * params.length;
+    setProgress({ done: 0, total });
 
     const failed: string[] = [];
-    for (let i = 0; i < STEP_HOURS.length; i++) {
-      const offset = STEP_HOURS[i];
+    let done = 0;
+
+    // Boucle par echeance d'abord (J+0, J+24h, ...) puis par champ : les
+    // cartes d'un meme instant se retrouvent groupees dans la sequence,
+    // pratique pour croiser plusieurs champs a la meme echeance.
+    for (const offset of STEP_HOURS) {
       const validTime = addHours(baseTime, offset);
-      try {
-        const blob = await fetchEcmwfChart({
-          product,
-          baseTime,
-          validTime,
-          projection,
-          level: level || undefined,
-        });
-        const file = new File([blob], `${product}-J+${offset}h.png`, {
-          type: blob.type || "image/png",
-        });
-        onAddImage(file, `${label} — J+${offset}h`);
-      } catch (err) {
-        failed.push(`J+${offset}h : ${err instanceof Error ? err.message : "erreur inconnue"}`);
-      }
-      setProgress({ done: i + 1, total: STEP_HOURS.length });
+      const results = await Promise.allSettled(
+        params.map(async (param) => {
+          const blob = await fetchEcmwfChart({
+            product: param.product,
+            baseTime,
+            validTime,
+            projection,
+            level: param.level,
+          });
+          const file = new File([blob], `${param.id}-J+${offset}h.png`, {
+            type: blob.type || "image/png",
+          });
+          onAddImage(file, `${param.label} — J+${offset}h`);
+        }),
+      );
+
+      results.forEach((result, index) => {
+        if (result.status === "rejected") {
+          const message =
+            result.reason instanceof Error ? result.reason.message : "erreur inconnue";
+          failed.push(`${params[index].label} — J+${offset}h : ${message}`);
+        }
+      });
+
+      done += params.length;
+      setProgress({ done, total });
     }
 
     setErrors(failed);
@@ -84,47 +93,26 @@ export function SynopticAnalysis({ onAddImage }: Props) {
     <div className="panel">
       <h2>Analyse synoptique (ECMWF Open Charts)</h2>
       <p className="agent-description">
-        Charge automatiquement les 8 echeances de J a J+7 (pas de 24h) pour le produit
-        selectionne et les ajoute a la sequence de cartes ci-dessous, prete pour l'analyse par
-        les agents.
+        Cochez un ou plusieurs champs a croiser, puis chargez automatiquement les 8 echeances de
+        J a J+7 (pas de 24h) pour chacun. Les cartes sont ajoutees a la sequence ci-dessous,
+        groupees par echeance, pretes pour l'analyse par les agents.
       </p>
 
-      <label>
-        Parametre (pre-remplit produit/niveau, modifiables ci-dessous)
-        <select value={parameterId} onChange={(e) => handleParameterChange(e.target.value)}>
-          {SYNOPTIC_PARAMETERS.map((candidate) => (
-            <option key={candidate.id} value={candidate.id}>
-              {candidate.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      {currentPreset && <p className="agent-description">{currentPreset.description}</p>}
-
-      <p className="agent-description">
-        <strong>Identifiants non garantis</strong> : a verifier/corriger via le bouton
-        "Download" d'une carte sur{" "}
-        <a href="https://charts.ecmwf.int/" target="_blank" rel="noreferrer">
-          charts.ecmwf.int
-        </a>{" "}
-        si une echeance echoue en 404.
-      </p>
-
-      <div className="coords-row">
-        <label>
-          Produit ECMWF
-          <input value={product} onChange={(e) => setProduct(e.target.value)} />
-        </label>
-        <label>
-          Niveau (hPa, optionnel)
-          <input value={level} onChange={(e) => setLevel(e.target.value)} />
-        </label>
-      </div>
-
-      <label>
-        Libelle des cartes
-        <input value={label} onChange={(e) => setLabel(e.target.value)} />
-      </label>
+      <ul className="agent-list">
+        {SYNOPTIC_PARAMETERS.map((param) => (
+          <li key={param.id}>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedIds.includes(param.id)}
+                onChange={() => toggleParameter(param.id)}
+              />
+              <strong>{param.label}</strong>
+              <span className="agent-description">{param.description}</span>
+            </label>
+          </li>
+        ))}
+      </ul>
 
       <div className="coords-row">
         <label>
@@ -138,18 +126,19 @@ export function SynopticAnalysis({ onAddImage }: Props) {
       </div>
       <p className="agent-description">
         Les runs ECMWF sont a 00Z/12Z et publies avec quelques heures de delai. Si le run le
-        plus recent echoue partout, essayez le run precedent (soustrayez 12h).
+        plus recent echoue partout, essayez le run precedent (soustrayez 12h). Pour corriger un
+        identifiant de produit errone, utilisez "Autres sources &gt; Carte ECMWF Open Charts".
       </p>
 
-      <button onClick={handleLoadWeek} disabled={loading || !product}>
+      <button onClick={handleLoadWeek} disabled={loading || selectedIds.length === 0}>
         {loading && progress
           ? `Chargement... (${progress.done}/${progress.total})`
-          : "Charger la sequence J a J+7"}
+          : `Charger la sequence J a J+7 (${selectedIds.length} champ${selectedIds.length > 1 ? "s" : ""})`}
       </button>
 
       {errors.length > 0 && (
         <div className="error">
-          <p>{errors.length} echeance(s) n'ont pas pu etre recuperees :</p>
+          <p>{errors.length} carte(s) n'ont pas pu etre recuperees :</p>
           <ul>
             {errors.map((message) => (
               <li key={message}>{message}</li>

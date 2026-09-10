@@ -86,11 +86,13 @@ la procedure complete.
 
 ## Fonctionnement
 
-1. Dans "Analyse synoptique", choisissez un parametre (Z500, surface,
-   altitude, precipitation, temperature) et un "base time" (run de
-   reference), puis cliquez "Charger la sequence J a J+7" : les 8
-   echeances sont recuperees automatiquement et ajoutees a la sequence
-   de cartes plus bas. Renommez ou reordonnez-les si besoin.
+1. Dans "Analyse synoptique", cochez un ou plusieurs champs a croiser
+   (Z500, surface, altitude, precipitation, temperature) et choisissez
+   un "base time" (run de reference), puis cliquez "Charger la sequence
+   J a J+7" : les 8 echeances de chaque champ coche sont recuperees
+   automatiquement et ajoutees a la sequence de cartes plus bas,
+   groupees par echeance (tous les champs de J+0h, puis J+24h, etc.).
+   Renommez ou reordonnez-les si besoin.
 2. (Optionnel) Depuis "Autres sources", ajoutez une image uploadee, une
    carte ECMWF ponctuelle, ou des donnees meteo par coordonnees GPS.
 3. Selectionnez un ou plusieurs agents IA (previsionniste, vigilance,

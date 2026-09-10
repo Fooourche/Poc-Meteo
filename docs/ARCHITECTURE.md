@@ -65,16 +65,17 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 - `src/components/StepNav.tsx` : bandeau visuel des 4 etapes du cadre
   d'expertise (voir plus haut), purement informatif pour l'instant.
 - `src/components/SynopticAnalysis.tsx` : outil principal de l'etape
-  "Analyse synoptique". L'utilisateur choisit un parametre (Z500+T850,
-  surface, altitude, precipitation, temperature - voir
-  `src/synopticProducts.ts` pour le mapping vers des produits ECMWF Open
-  Charts, tous confirmes manuellement via le site le 2026-09-11) et un
-  "base time" (run de reference, aligne par defaut sur le dernier run
-  00Z/12Z). Les champs
-  "Produit"/"Niveau" restent editables dans l'UI si besoin de correction.
-  Un seul clic recupere les 8 echeances J, J+24h, ..., J+168h et les
-  ajoute toutes a la sequence de cartes, sans manipulation manuelle
-  repetee.
+  "Analyse synoptique". L'utilisateur **coche un ou plusieurs champs a
+  croiser** (Z500+T850, surface, altitude, precipitation, temperature -
+  voir `src/synopticProducts.ts` pour le mapping vers des produits ECMWF
+  Open Charts, tous confirmes manuellement via le site le 2026-09-11) et
+  choisit un "base time" (run de reference, aligne par defaut sur le
+  dernier run 00Z/12Z). Un seul clic recupere les 8 echeances J, J+24h,
+  ..., J+168h pour chaque champ coche et les ajoute a la sequence de
+  cartes, **groupees par echeance** (tous les champs de J+0h, puis tous
+  ceux de J+24h, etc.) pour faciliter la comparaison entre champs a un
+  meme instant. Les fetches d'un meme pas de temps se font en parallele
+  (`Promise.allSettled`) pour limiter le temps d'attente total.
 - `src/components/MapUploader.tsx` : upload manuel d'une ou plusieurs
   images de carte meteo en une fois (regroupe avec `EcmwfChartPicker` et
   `WeatherPanel` sous "Autres sources", repliees par defaut).
