@@ -117,19 +117,21 @@ ainsi comparer directement les images entre elles.
 ## Analyse synoptique : produits ECMWF utilises
 
 Les 5 parametres proposes dans "Analyse synoptique" pre-remplissent les
-produits ECMWF Open Charts suivants - **identifiants non verifies contre
-l'API reelle** (suppositions de nommage, a corriger au premier 404 via
-les champs "Produit"/"Niveau" editables dans l'UI, en recuperant le vrai
-identifiant sur [charts.ecmwf.int](https://charts.ecmwf.int/) bouton
-"Download" d'une carte) :
+produits ECMWF Open Charts suivants. Contrairement a une version
+precedente de ce README, ces identifiants sont **confirmes** (verifies
+manuellement via le bouton "Download" d'une carte reelle sur
+[charts.ecmwf.int](https://charts.ecmwf.int/)), a une exception pres :
 
-| Parametre     | Produit                | Niveau |
+| Parametre     | Produit                | Statut |
 |---------------|-------------------------|--------|
-| Z500          | `medium-t-z`            | 500 hPa |
-| Surface       | `medium-mslp-wind850`   | (integre au produit) |
-| Altitude      | `medium-rv-div-uv`      | 700 hPa |
-| Precipitation | `medium-rain-acc`       | - |
-| Temperature   | `medium-2t-wind`        | - |
+| Z500 + T850   | `medium-z500-t850`      | confirme |
+| Surface       | `medium-mslp-wind850`   | confirme |
+| Altitude      | `medium-z500-t850`      | confirme (meme produit que Z500, pas de carte dediee identifiee pour l'instant) |
+| Precipitation | `medium-mslp-rain`      | confirme |
+| Temperature   | `medium-z500-t850`      | **a reconfirmer** - identique a Z500/T850, probablement une erreur ; corriger si un produit de temperature 2m dedie est trouve |
+
+Le champ "Produit" reste editable dans l'UI si un identifiant se revele
+incorrect ou change.
 
 ## Cartes ECMWF Open Charts
 

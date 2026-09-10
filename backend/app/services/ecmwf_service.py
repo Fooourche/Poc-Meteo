@@ -8,15 +8,14 @@ qui utilise product='medium-uv-rh') est en deux temps :
    la cle data.link.href contient l'URL reelle de l'image generee.
 2. On telecharge cette image (PNG ou PDF).
 
-ATTENTION : seul le MECANISME ci-dessus (et le produit "medium-uv-rh") est
-verifie via cet exemple officiel. Les autres identifiants de produit dans
-SUGGESTED_PRODUCTS ci-dessous sont des suppositions non confirmees (a ne
-pas confondre avec les notebooks du meme dossier qui recreent des cartes
-a la main depuis des donnees brutes ecmwf-opendata - meme nommage, API
-differente). Le nom exact d'un produit s'obtient sur
-https://charts.ecmwf.int/ (bouton "Download" d'une carte -> documentation
-Swagger). L'identifiant de produit reste un champ libre cote API : en cas
-de 404, le corriger directement dans l'UI.
+Les identifiants marques "confirme" dans SUGGESTED_PRODUCTS ci-dessous
+ont ete verifies manuellement par l'utilisateur via le bouton "Download"
+d'une carte reelle sur https://charts.ecmwf.int/ (2026-09-11) ; les autres
+restent des suppositions non confirmees (a ne pas confondre avec les
+notebooks ecmwf/notebook-examples/opencharts/ du meme nom, qui recreent
+des cartes a la main depuis des donnees brutes ecmwf-opendata - meme
+nommage, API differente). L'identifiant de produit reste un champ libre
+cote API : en cas de 404, le corriger directement dans l'UI.
 """
 
 import httpx
@@ -28,8 +27,18 @@ ECMWF_API_URL = "https://charts.ecmwf.int/opencharts-api/v1/"
 SUGGESTED_PRODUCTS: list[EcmwfProductInfo] = [
     EcmwfProductInfo(
         id="medium-mslp-wind850",
-        name="Pression mer + vent 850 hPa",
+        name="[confirme] Pression mer + vent 850 hPa",
         description="Pression au niveau de la mer et vent a 850 hPa (echeance medium range).",
+    ),
+    EcmwfProductInfo(
+        id="medium-z500-t850",
+        name="[confirme] Geopotentiel 500 hPa + temperature 850 hPa",
+        description="Carte synoptique classique (Z500/T850) : ondes, advection thermique.",
+    ),
+    EcmwfProductInfo(
+        id="medium-mslp-rain",
+        name="[confirme] Pression mer + precipitations",
+        description="Pression au niveau de la mer et precipitations.",
     ),
     EcmwfProductInfo(
         id="medium-uv-rh",
@@ -45,30 +54,6 @@ SUGGESTED_PRODUCTS: list[EcmwfProductInfo] = [
         id="opencharts_extended_meteogram",
         name="Meteogramme etendu",
         description="Evolution temporelle des parametres meteo pour un point donne.",
-    ),
-    # Produits utilises par defaut par le module "Analyse synoptique" du
-    # frontend (voir frontend/src/synopticProducts.ts). NON VERIFIES contre
-    # l'API reelle (voir avertissement en tete de fichier) ; a corriger au
-    # premier 404 rencontre.
-    EcmwfProductInfo(
-        id="medium-t-z",
-        name="Geopotentiel + temperature (Z500 avec level=500)",
-        description="Geopotentiel et temperature a un niveau de pression donne.",
-    ),
-    EcmwfProductInfo(
-        id="medium-rv-div-uv",
-        name="Tourbillon/divergence + vent (avec level=700)",
-        description="Tourbillon relatif, divergence et vent a un niveau de pression donne.",
-    ),
-    EcmwfProductInfo(
-        id="medium-rain-acc",
-        name="Precipitations (cumul)",
-        description="Cumul de precipitations depuis l'echeance initiale.",
-    ),
-    EcmwfProductInfo(
-        id="medium-2t-wind",
-        name="Temperature 2m + vent 10m",
-        description="Temperature a 2 metres et vent a 10 metres.",
     ),
 ]
 

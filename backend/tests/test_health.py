@@ -22,7 +22,7 @@ def test_list_ecmwf_products() -> None:
     response = client.get("/api/ecmwf/products")
     assert response.status_code == 200
     product_ids = {product["id"] for product in response.json()}
-    assert "medium-mslp-wind850" in product_ids
+    assert {"medium-mslp-wind850", "medium-z500-t850", "medium-mslp-rain"} <= product_ids
 
 
 def test_analyze_with_multiple_images() -> None:

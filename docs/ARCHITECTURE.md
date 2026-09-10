@@ -65,15 +65,16 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 - `src/components/StepNav.tsx` : bandeau visuel des 4 etapes du cadre
   d'expertise (voir plus haut), purement informatif pour l'instant.
 - `src/components/SynopticAnalysis.tsx` : outil principal de l'etape
-  "Analyse synoptique". L'utilisateur choisit un parametre (Z500,
+  "Analyse synoptique". L'utilisateur choisit un parametre (Z500+T850,
   surface, altitude, precipitation, temperature - voir
   `src/synopticProducts.ts` pour le mapping vers des produits ECMWF Open
-  Charts, **non verifies contre l'API reelle** : ce sont des suppositions
-  de nommage a confirmer/corriger via les champs "Produit"/"Niveau",
-  editables dans l'UI) et un "base time" (run de reference, aligne par
-  defaut sur le dernier run 00Z/12Z). Un seul clic recupere les 8
-  echeances J, J+24h, ..., J+168h et les ajoute toutes a la sequence de
-  cartes, sans manipulation manuelle repetee.
+  Charts, confirmes manuellement via le site le 2026-09-11, sauf
+  "temperature" qui reste a reconfirmer) et un "base time" (run de
+  reference, aligne par defaut sur le dernier run 00Z/12Z). Les champs
+  "Produit"/"Niveau" restent editables dans l'UI si besoin de correction.
+  Un seul clic recupere les 8 echeances J, J+24h, ..., J+168h et les
+  ajoute toutes a la sequence de cartes, sans manipulation manuelle
+  repetee.
 - `src/components/MapUploader.tsx` : upload manuel d'une ou plusieurs
   images de carte meteo en une fois (regroupe avec `EcmwfChartPicker` et
   `WeatherPanel` sous "Autres sources", repliees par defaut).
