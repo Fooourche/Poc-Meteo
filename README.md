@@ -116,9 +116,12 @@ ainsi comparer directement les images entre elles.
 
 ## Analyse synoptique : produits ECMWF utilises
 
-Les 5 parametres proposes dans "Analyse synoptique" correspondent aux
-produits ECMWF Open Charts suivants (identifiants verifies via les
-notebooks officiels [ecmwf/notebook-examples](https://github.com/ecmwf/notebook-examples/tree/master/opencharts)) :
+Les 5 parametres proposes dans "Analyse synoptique" pre-remplissent les
+produits ECMWF Open Charts suivants - **identifiants non verifies contre
+l'API reelle** (suppositions de nommage, a corriger au premier 404 via
+les champs "Produit"/"Niveau" editables dans l'UI, en recuperant le vrai
+identifiant sur [charts.ecmwf.int](https://charts.ecmwf.int/) bouton
+"Download" d'une carte) :
 
 | Parametre     | Produit                | Niveau |
 |---------------|-------------------------|--------|

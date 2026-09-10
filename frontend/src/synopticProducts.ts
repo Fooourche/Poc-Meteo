@@ -6,8 +6,14 @@ export interface SynopticParameter {
   description: string;
 }
 
-// Identifiants de produits ECMWF Open Charts verifies via les notebooks
-// officiels ecmwf/notebook-examples (opencharts/), pas devines.
+// Identifiants de produits ECMWF Open Charts A CONFIRMER : ce sont des
+// suppositions raisonnables (coherentes avec la nomenclature "medium-*"
+// vue sur charts.ecmwf.int), mais PAS verifiees contre l'API reelle (les
+// notebooks ecmwf/notebook-examples/opencharts/ portant des noms
+// similaires retracent en fait des cartes a la main a partir de donnees
+// brutes ecmwf-opendata, pas des appels a cette API). En cas de 404,
+// corriger via le champ "Produit" de l'UI, en recuperant l'identifiant
+// exact sur charts.ecmwf.int (bouton "Download" d'une carte).
 export const SYNOPTIC_PARAMETERS: SynopticParameter[] = [
   {
     id: "z500",

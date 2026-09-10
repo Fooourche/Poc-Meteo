@@ -84,10 +84,13 @@ d'expertise meteo (voir `docs/ARCHITECTURE.md`) :
   comparer des previsions dans le temps.
 - Explorer l'integration de donnees radar/satellite reelles (ex: API
   Meteo-France ouvertes si disponibles).
-- Etendre la liste des produits ECMWF Open Charts suggeres (registre
-  `SUGGESTED_PRODUCTS`) une fois les identifiants exacts verifies pour
-  chaque type de carte utile (precipitations, temperature, neige...).
-  5 produits synoptiques deja verifies et integres (voir Etape 1ter).
+- **Verifier les identifiants de produits ECMWF Open Charts reellement
+  valides** (priorite haute) : ceux actuellement dans
+  `SUGGESTED_PRODUCTS` et `synopticProducts.ts` (Z500, altitude,
+  precipitation, temperature, et meme surface/mslp-wind850) sont des
+  suppositions de nommage non confirmees contre l'API - a corriger via
+  le site charts.ecmwf.int (bouton "Download" d'une carte reelle) au fur
+  et a mesure des 404 rencontres, puis mettre a jour les deux fichiers.
 - Etape "Calage des modeles" : integrer une source d'images satellite
   et/ou radar reelles (ex: EUMETSAT, Meteo-France) pour comparaison
   visuelle avec les sorties de modele.

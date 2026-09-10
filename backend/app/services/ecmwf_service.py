@@ -1,16 +1,22 @@
 """Client pour l'API publique ECMWF Open Charts (charts.ecmwf.int).
 
 Aucune cle API n'est requise. Le fonctionnement (verifie via le notebook
-officiel ecmwf/notebook-examples/opencharts) est en deux temps :
+officiel ecmwf/notebook-examples/opencharts/Download_medium_range_product_example.ipynb,
+qui utilise product='medium-uv-rh') est en deux temps :
 
 1. GET {ECMWF_API_URL}products/{product}/?<parametres> renvoie un JSON dont
    la cle data.link.href contient l'URL reelle de l'image generee.
 2. On telecharge cette image (PNG ou PDF).
 
-Le nom exact des produits et projections disponibles s'obtient sur le site
-https://charts.ecmwf.int/ (bouton "Download" -> documentation Swagger).
-SUGGESTED_PRODUCTS ci-dessous ne liste que quelques produits courants a
-titre d'exemple ; l'identifiant de produit reste un champ libre cote API.
+ATTENTION : seul le MECANISME ci-dessus (et le produit "medium-uv-rh") est
+verifie via cet exemple officiel. Les autres identifiants de produit dans
+SUGGESTED_PRODUCTS ci-dessous sont des suppositions non confirmees (a ne
+pas confondre avec les notebooks du meme dossier qui recreent des cartes
+a la main depuis des donnees brutes ecmwf-opendata - meme nommage, API
+differente). Le nom exact d'un produit s'obtient sur
+https://charts.ecmwf.int/ (bouton "Download" d'une carte -> documentation
+Swagger). L'identifiant de produit reste un champ libre cote API : en cas
+de 404, le corriger directement dans l'UI.
 """
 
 import httpx
@@ -40,9 +46,10 @@ SUGGESTED_PRODUCTS: list[EcmwfProductInfo] = [
         name="Meteogramme etendu",
         description="Evolution temporelle des parametres meteo pour un point donne.",
     ),
-    # Produits utilises par le module "Analyse synoptique" du frontend
-    # (voir frontend/src/synopticProducts.ts) ; ajoutes ici egalement pour
-    # qu'ils apparaissent dans les suggestions du selecteur libre.
+    # Produits utilises par defaut par le module "Analyse synoptique" du
+    # frontend (voir frontend/src/synopticProducts.ts). NON VERIFIES contre
+    # l'API reelle (voir avertissement en tete de fichier) ; a corriger au
+    # premier 404 rencontre.
     EcmwfProductInfo(
         id="medium-t-z",
         name="Geopotentiel + temperature (Z500 avec level=500)",

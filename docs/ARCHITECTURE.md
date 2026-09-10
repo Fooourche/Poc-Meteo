@@ -67,9 +67,11 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 - `src/components/SynopticAnalysis.tsx` : outil principal de l'etape
   "Analyse synoptique". L'utilisateur choisit un parametre (Z500,
   surface, altitude, precipitation, temperature - voir
-  `src/synopticProducts.ts` pour le mapping vers les produits ECMWF Open
-  Charts, verifies via les notebooks officiels ecmwf/notebook-examples)
-  et un "base time" (run de reference). Un seul clic recupere les 8
+  `src/synopticProducts.ts` pour le mapping vers des produits ECMWF Open
+  Charts, **non verifies contre l'API reelle** : ce sont des suppositions
+  de nommage a confirmer/corriger via les champs "Produit"/"Niveau",
+  editables dans l'UI) et un "base time" (run de reference, aligne par
+  defaut sur le dernier run 00Z/12Z). Un seul clic recupere les 8
   echeances J, J+24h, ..., J+168h et les ajoute toutes a la sequence de
   cartes, sans manipulation manuelle repetee.
 - `src/components/MapUploader.tsx` : upload manuel d'une ou plusieurs
