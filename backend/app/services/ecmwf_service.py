@@ -40,6 +40,29 @@ SUGGESTED_PRODUCTS: list[EcmwfProductInfo] = [
         name="Meteogramme etendu",
         description="Evolution temporelle des parametres meteo pour un point donne.",
     ),
+    # Produits utilises par le module "Analyse synoptique" du frontend
+    # (voir frontend/src/synopticProducts.ts) ; ajoutes ici egalement pour
+    # qu'ils apparaissent dans les suggestions du selecteur libre.
+    EcmwfProductInfo(
+        id="medium-t-z",
+        name="Geopotentiel + temperature (Z500 avec level=500)",
+        description="Geopotentiel et temperature a un niveau de pression donne.",
+    ),
+    EcmwfProductInfo(
+        id="medium-rv-div-uv",
+        name="Tourbillon/divergence + vent (avec level=700)",
+        description="Tourbillon relatif, divergence et vent a un niveau de pression donne.",
+    ),
+    EcmwfProductInfo(
+        id="medium-rain-acc",
+        name="Precipitations (cumul)",
+        description="Cumul de precipitations depuis l'echeance initiale.",
+    ),
+    EcmwfProductInfo(
+        id="medium-2t-wind",
+        name="Temperature 2m + vent 10m",
+        description="Temperature a 2 metres et vent a 10 metres.",
+    ),
 ]
 
 _MEDIA_TYPES = {"png": "image/png", "pdf": "application/pdf"}

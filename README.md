@@ -1,11 +1,17 @@
 # POC Meteo - Analyse de cartes meteo par agents IA
 
-Prototype permettant de :
+Prototype organise autour d'un cadre d'expertise previsionniste a 4
+etapes (observation, calage des modeles, analyse synoptique, comparaison
+modeles/ensemble - voir `docs/ARCHITECTURE.md`), dont seule l'**analyse
+synoptique** est implementee pour l'instant :
 
-- Constituer une **sequence temporelle** (plusieurs echeances) ou une
-  **combinaison de parametres** (plusieurs cartes) a partir d'images
-  uploadees et/ou recuperees directement depuis **ECMWF Open Charts**,
-  et recuperer des donnees meteo via une API publique (Open-Meteo).
+- Chargement automatique d'une semaine de cartes **ECMWF Open Charts**
+  (J a J+7, pas de 24h) pour un parametre au choix (Z500, surface,
+  altitude, precipitation, temperature), ajoutees directement a une
+  sequence prete pour l'analyse.
+- Sources additionnelles disponibles en complement : upload manuel
+  d'images, recuperation ECMWF a la carte, donnees ponctuelles
+  Open-Meteo (regroupees sous "Autres sources").
 - Connecter un ou plusieurs **agents IA d'expertise meteo** (bases sur
   Claude, Anthropic API) pour analyser ces cartes/donnees et obtenir des
   points de vue complementaires (previsionniste, vigilance/risques,
@@ -80,12 +86,13 @@ la procedure complete.
 
 ## Fonctionnement
 
-1. Ajoutez une ou plusieurs cartes au panier "Cartes a analyser" : upload
-   manuel (plusieurs fichiers a la fois) et/ou recuperation depuis ECMWF
-   Open Charts (un clic sur "Ajouter a la sequence" par carte). Renommez
-   chaque carte (ex: "T+0h", "T+24h", "Precipitations") pour aider les
-   agents a s'y reperer, et reordonnez-les si besoin.
-2. Recuperez eventuellement des donnees meteo par coordonnees GPS.
+1. Dans "Analyse synoptique", choisissez un parametre (Z500, surface,
+   altitude, precipitation, temperature) et un "base time" (run de
+   reference), puis cliquez "Charger la sequence J a J+7" : les 8
+   echeances sont recuperees automatiquement et ajoutees a la sequence
+   de cartes plus bas. Renommez ou reordonnez-les si besoin.
+2. (Optionnel) Depuis "Autres sources", ajoutez une image uploadee, une
+   carte ECMWF ponctuelle, ou des donnees meteo par coordonnees GPS.
 3. Selectionnez un ou plusieurs agents IA (previsionniste, vigilance,
    vulgarisateur).
 4. Posez une question libre et lancez l'analyse : toutes les cartes du
@@ -106,6 +113,20 @@ Le panier de cartes accepte deux usages avec la meme mecanique :
 Toutes les cartes du panier sont envoyees en une seule requete a Claude
 (avec leur libelle), plutot qu'analysees separement : le modele peut
 ainsi comparer directement les images entre elles.
+
+## Analyse synoptique : produits ECMWF utilises
+
+Les 5 parametres proposes dans "Analyse synoptique" correspondent aux
+produits ECMWF Open Charts suivants (identifiants verifies via les
+notebooks officiels [ecmwf/notebook-examples](https://github.com/ecmwf/notebook-examples/tree/master/opencharts)) :
+
+| Parametre     | Produit                | Niveau |
+|---------------|-------------------------|--------|
+| Z500          | `medium-t-z`            | 500 hPa |
+| Surface       | `medium-mslp-wind850`   | (integre au produit) |
+| Altitude      | `medium-rv-div-uv`      | 700 hPa |
+| Precipitation | `medium-rain-acc`       | - |
+| Temperature   | `medium-2t-wind`        | - |
 
 ## Cartes ECMWF Open Charts
 

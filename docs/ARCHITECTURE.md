@@ -1,5 +1,20 @@
 # Architecture
 
+## Cadre d'expertise previsionniste
+
+L'interface s'organise autour de 4 etapes inspirees d'un processus reel
+d'expertise meteo (voir `StepNav.tsx`) :
+
+1. **Observation** (a venir)
+2. **Calage des modeles** - comparaison satellite/radar (a venir)
+3. **Analyse synoptique** - implementee : chargement automatique d'une
+   semaine de cartes ECMWF (J a J+7) pour un parametre synoptique donne.
+4. **Comparaison modeles / ensemble** (a venir)
+
+Seule l'etape 3 est fonctionnelle pour l'instant ; les autres apparaissent
+dans la navigation comme reperes visuels du cadre cible, marquees
+"bientot". Voir ROADMAP.md pour leur contenu prevu.
+
 ## Vue d'ensemble
 
 ```
@@ -47,8 +62,19 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 
 ## Frontend (`frontend/`)
 
+- `src/components/StepNav.tsx` : bandeau visuel des 4 etapes du cadre
+  d'expertise (voir plus haut), purement informatif pour l'instant.
+- `src/components/SynopticAnalysis.tsx` : outil principal de l'etape
+  "Analyse synoptique". L'utilisateur choisit un parametre (Z500,
+  surface, altitude, precipitation, temperature - voir
+  `src/synopticProducts.ts` pour le mapping vers les produits ECMWF Open
+  Charts, verifies via les notebooks officiels ecmwf/notebook-examples)
+  et un "base time" (run de reference). Un seul clic recupere les 8
+  echeances J, J+24h, ..., J+168h et les ajoute toutes a la sequence de
+  cartes, sans manipulation manuelle repetee.
 - `src/components/MapUploader.tsx` : upload manuel d'une ou plusieurs
-  images de carte meteo en une fois.
+  images de carte meteo en une fois (regroupe avec `EcmwfChartPicker` et
+  `WeatherPanel` sous "Autres sources", repliees par defaut).
 - `src/components/EcmwfChartPicker.tsx` : recuperation d'une carte
   depuis ECMWF Open Charts (produit, echeance, projection). Chaque clic
   sur "Ajouter a la sequence" ajoute une carte supplementaire (ex:

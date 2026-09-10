@@ -21,6 +21,25 @@
 - URL d'API frontend rendue configurable (`VITE_API_BASE_URL`) pour
   fonctionner aussi bien en local (proxy Vite) qu'en production.
 
+## Etape 1ter - Cadre d'expertise previsionniste (en cours)
+
+L'app se structure autour de 4 etapes inspirees d'un vrai processus
+d'expertise meteo (voir `docs/ARCHITECTURE.md`) :
+
+1. **Observation** - a faire. Prevu : afficher/uploader des observations
+   recentes (satellite, radar, stations) pour l'etat initial.
+2. **Calage des modeles** (comparaison satellite/radar) - a faire. Prevu :
+   comparer visuellement une sortie de modele a une observation reelle
+   au meme instant, pour juger de la qualite de l'initialisation.
+3. **Analyse synoptique** (fait) - `SynopticAnalysis.tsx` charge
+   automatiquement les 8 echeances J a J+7 (pas de 24h) d'un parametre
+   ECMWF Open Charts au choix (Z500, surface, altitude, precipitation,
+   temperature - voir `frontend/src/synopticProducts.ts`), et les ajoute
+   directement a la sequence de cartes pour analyse par les agents.
+4. **Comparaison modeles / ensemble** - a faire. Prevu : comparer
+   plusieurs modeles (ex: HRES vs ENS, ou ECMWF vs un autre centre) et/ou
+   visualiser la dispersion d'ensemble (mean-spread, probabilite).
+
 ## Etape 1 - Faire tourner le prototype en local
 
 1. `cd backend && python -m venv .venv && source .venv/bin/activate`
@@ -68,6 +87,15 @@
 - Etendre la liste des produits ECMWF Open Charts suggeres (registre
   `SUGGESTED_PRODUCTS`) une fois les identifiants exacts verifies pour
   chaque type de carte utile (precipitations, temperature, neige...).
+  5 produits synoptiques deja verifies et integres (voir Etape 1ter).
+- Etape "Calage des modeles" : integrer une source d'images satellite
+  et/ou radar reelles (ex: EUMETSAT, Meteo-France) pour comparaison
+  visuelle avec les sorties de modele.
+- Etape "Comparaison modeles / ensemble" : ajouter les produits ECMWF
+  Open Charts de type "mean-spread" et "probability" (deja repertories
+  dans les notebooks officiels, ex: `medium-2t-mean-spread`,
+  `medium-tp-probability`) au meme mecanisme de chargement automatique
+  que `SynopticAnalysis`.
 
 ## Etape 5 - Durcissement produit
 

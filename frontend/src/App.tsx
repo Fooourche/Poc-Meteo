@@ -6,6 +6,8 @@ import { AnalysisResult } from "./components/AnalysisResult";
 import { EcmwfChartPicker } from "./components/EcmwfChartPicker";
 import { MapSequence } from "./components/MapSequence";
 import { MapUploader } from "./components/MapUploader";
+import { StepNav } from "./components/StepNav";
+import { SynopticAnalysis } from "./components/SynopticAnalysis";
 import { WeatherPanel } from "./components/WeatherPanel";
 import type { AgentAnalysis, AgentInfo, MapItem, WeatherForecastResponse } from "./types";
 
@@ -104,19 +106,27 @@ export default function App() {
       <header>
         <h1>POC Meteo - Analyse par agents IA</h1>
         <p>
-          Constituez une sequence ou une combinaison de cartes meteo, puis interrogez un ou
-          plusieurs agents.
+          Cadre inspire d'un processus d'expertise previsionniste : observation, calage des
+          modeles, analyse synoptique, comparaison modeles/ensemble.
         </p>
       </header>
 
+      <StepNav />
+
       {error && <p className="error">{error}</p>}
 
-      <section className="grid">
-        <MapUploader onAddImages={handleAddImages} />
-        <EcmwfChartPicker onAddImage={handleAddSingleImage} />
-        <WeatherPanel onForecastLoaded={setForecast} />
-        <AgentSelector agents={agents} selectedIds={selectedAgentIds} onToggle={toggleAgent} />
-      </section>
+      <SynopticAnalysis onAddImage={handleAddSingleImage} />
+
+      <details className="panel">
+        <summary>Autres sources de cartes (upload manuel, ECMWF a la carte, donnees ponctuelles)</summary>
+        <section className="grid">
+          <MapUploader onAddImages={handleAddImages} />
+          <EcmwfChartPicker onAddImage={handleAddSingleImage} />
+          <WeatherPanel onForecastLoaded={setForecast} />
+        </section>
+      </details>
+
+      <AgentSelector agents={agents} selectedIds={selectedAgentIds} onToggle={toggleAgent} />
 
       <MapSequence
         items={mapItems}
