@@ -25,10 +25,12 @@ services:
       - key: ANTHROPIC_MODEL
         value: claude-sonnet-5
       - key: CORS_ORIGINS
-        fromService:
-          name: poc-meteo-frontend
-          type: web
-          property: host
+        # NB: fromService/property:host renvoie le nom d'hote reseau prive
+        # de Render (ex: "poc-meteo-frontend"), pas l'URL publique
+        # https://...onrender.com - constate empiriquement, non documente
+        # clairement. On fixe donc l'URL publique en dur (a adapter si le
+        # nom du service ou le sous-domaine change).
+        value: https://poc-meteo-frontend.onrender.com
 
   - type: web
     name: poc-meteo-frontend
@@ -42,7 +44,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          name: poc-meteo-backend
-          type: web
-          property: host
+        # Meme remarque que CORS_ORIGINS cote backend : on fixe l'URL
+        # publique en dur plutot que de se fier a fromService/property:host.
+        value: https://poc-meteo-backend.onrender.com

@@ -40,12 +40,13 @@ genere un cout, proportionnel a l'usage reel des agents.
    depot).
 6. Cliquer **Apply** / **Create**. Render construit et deploie les deux
    services (quelques minutes pour le premier build).
-7. Une fois deployes, Render affiche les URLs (ex:
-   `https://poc-meteo-frontend.onrender.com` et
-   `https://poc-meteo-backend.onrender.com`). `CORS_ORIGINS` (cote
-   backend) et `VITE_API_BASE_URL` (cote frontend) sont deja relies
-   automatiquement entre les deux services via `fromService` dans
-   `render.yaml` : aucune configuration manuelle d'URL n'est necessaire.
+7. Une fois deployes, Render affiche les URLs (`https://poc-meteo-frontend.onrender.com`
+   et `https://poc-meteo-backend.onrender.com` si les noms de
+   `render.yaml` sont libres, sinon Render ajoute un suffixe). Ces URLs
+   sont deja renseignees en dur dans `render.yaml` (`CORS_ORIGINS` cote
+   backend, `VITE_API_BASE_URL` cote frontend) : si Render vous attribue
+   des URLs differentes (suffixe ajoute), mettez a jour ces deux valeurs
+   dans `render.yaml` et repoussez.
 8. Ouvrir l'URL du frontend et tester : ajouter une carte, selectionner
    un agent, lancer une analyse. Le tout premier appel peut prendre
    jusqu'a une minute le temps que le backend (plan free) se reveille.
@@ -60,16 +61,30 @@ par defaut de Render). Aucune action manuelle n'est necessaire.
 
 - **"Failed to fetch" dans l'appli (ex: en recuperant une carte ECMWF ou
   la liste des agents)** : c'est le message generique du navigateur quand
-  une requete est bloquee par CORS. Verifier :
-  1. Que `https://<votre-backend>.onrender.com/api/health` repond bien
-     `{"status":"ok"}` dans le navigateur (sinon le backend est en panne
-     ou encore en train de demarrer : re-essayer apres ~1 min).
-  2. Sur le dashboard Render, service `poc-meteo-backend` > Environment,
-     que `CORS_ORIGINS` contient bien un schema (`https://...`). Depuis
-     la version courante, `config.py` ajoute automatiquement `https://`
-     si Render fournit uniquement le nom d'hote via `fromService`/`host`,
-     donc ce cas est deja couvert par le code ; un redeploiement du
-     backend suffit si l'erreur persistait avec une version anterieure.
+  une requete est bloquee par CORS ou n'atteint pas le bon serveur.
+  1. Verifier que `https://<votre-backend>.onrender.com/api/health`
+     repond bien `{"status":"ok"}` dans le navigateur (sinon le backend
+     est en panne ou encore en train de demarrer : re-essayer apres
+     ~1 min).
+  2. Visiter `https://<votre-backend>.onrender.com/api/debug/config` :
+     `cors_origins_resolved` doit contenir l'URL complete et exacte du
+     frontend (`https://poc-meteo-frontend.onrender.com`, avec le bon
+     sous-domaine). **Piege constate en pratique** : la fonctionnalite
+     `fromService` de Render (utilisee dans une version anterieure de
+     `render.yaml` pour relier automatiquement les deux services) avec
+     `property: host` renvoie le nom d'hote du **reseau prive interne**
+     de Render (ex: juste `poc-meteo-frontend`), pas l'URL publique
+     `https://poc-meteo-frontend.onrender.com` que le navigateur utilise
+     reellement. La version actuelle de `render.yaml` fixe donc ces URLs
+     en dur plutot que de se fier a `fromService`/`host`. Si vous avez
+     renomme un service ou si Render lui a attribue un suffixe, mettez a
+     jour `CORS_ORIGINS` et `VITE_API_BASE_URL` dans `render.yaml` en
+     consequence.
+  3. Cote frontend, `VITE_API_BASE_URL` est fige au moment du **build**
+     (Vite) : changer sa valeur dans `render.yaml` ne suffit pas, il faut
+     que le service `poc-meteo-frontend` rebuild reellement (un push qui
+     modifie `render.yaml` devrait le declencher automatiquement ; sinon,
+     forcer via le bouton **Manual Deploy** du service sur le dashboard).
 - **Erreur au clic sur "Analyser"** : consulter les Logs du service
   `poc-meteo-backend` (cle Anthropic mal renseignee, credit insuffisant
   sur console.anthropic.com, etc.). L'erreur exacte de l'API Anthropic
