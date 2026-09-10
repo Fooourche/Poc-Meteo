@@ -68,9 +68,9 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
   "Analyse synoptique". L'utilisateur choisit un parametre (Z500+T850,
   surface, altitude, precipitation, temperature - voir
   `src/synopticProducts.ts` pour le mapping vers des produits ECMWF Open
-  Charts, confirmes manuellement via le site le 2026-09-11, sauf
-  "temperature" qui reste a reconfirmer) et un "base time" (run de
-  reference, aligne par defaut sur le dernier run 00Z/12Z). Les champs
+  Charts, tous confirmes manuellement via le site le 2026-09-11) et un
+  "base time" (run de reference, aligne par defaut sur le dernier run
+  00Z/12Z). Les champs
   "Produit"/"Niveau" restent editables dans l'UI si besoin de correction.
   Un seul clic recupere les 8 echeances J, J+24h, ..., J+168h et les
   ajoute toutes a la sequence de cartes, sans manipulation manuelle

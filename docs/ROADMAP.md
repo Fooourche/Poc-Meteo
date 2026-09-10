@@ -87,10 +87,9 @@ d'expertise meteo (voir `docs/ARCHITECTURE.md`) :
 - Identifiants de produits ECMWF Open Charts confirmes le 2026-09-11 via
   le site (bouton "Download" d'une carte reelle) : `medium-z500-t850`
   (Z500+T850, aussi utilise pour "altitude" faute de mieux),
-  `medium-mslp-wind850` (surface), `medium-mslp-rain` (precipitation).
-  Reste a confirmer : un produit dedie pour "temperature" (2m) - le
-  produit actuel (`medium-z500-t850`) est un doublon probablement errone
-  - et, si possible, un produit dedie pour "altitude" (courant-jet,
+  `medium-mslp-wind850` (surface), `medium-mslp-rain` (precipitation),
+  `medium-2mt-wind30` (temperature 2m + vent). Reste a trouver, si
+  possible : un produit dedie pour "altitude" (courant-jet,
   vent/tourbillon) distinct de Z500.
 - Etape "Calage des modeles" : integrer une source d'images satellite
   et/ou radar reelles (ex: EUMETSAT, Meteo-France) pour comparaison

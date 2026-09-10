@@ -117,10 +117,9 @@ ainsi comparer directement les images entre elles.
 ## Analyse synoptique : produits ECMWF utilises
 
 Les 5 parametres proposes dans "Analyse synoptique" pre-remplissent les
-produits ECMWF Open Charts suivants. Contrairement a une version
-precedente de ce README, ces identifiants sont **confirmes** (verifies
-manuellement via le bouton "Download" d'une carte reelle sur
-[charts.ecmwf.int](https://charts.ecmwf.int/)), a une exception pres :
+produits ECMWF Open Charts suivants, tous **confirmes** manuellement via
+le bouton "Download" d'une carte reelle sur
+[charts.ecmwf.int](https://charts.ecmwf.int/) :
 
 | Parametre     | Produit                | Statut |
 |---------------|-------------------------|--------|
@@ -128,7 +127,7 @@ manuellement via le bouton "Download" d'une carte reelle sur
 | Surface       | `medium-mslp-wind850`   | confirme |
 | Altitude      | `medium-z500-t850`      | confirme (meme produit que Z500, pas de carte dediee identifiee pour l'instant) |
 | Precipitation | `medium-mslp-rain`      | confirme |
-| Temperature   | `medium-z500-t850`      | **a reconfirmer** - identique a Z500/T850, probablement une erreur ; corriger si un produit de temperature 2m dedie est trouve |
+| Temperature   | `medium-2mt-wind30`     | confirme |
 
 Le champ "Produit" reste editable dans l'UI si un identifiant se revele
 incorrect ou change.

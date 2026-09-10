@@ -41,6 +41,11 @@ SUGGESTED_PRODUCTS: list[EcmwfProductInfo] = [
         description="Pression au niveau de la mer et precipitations.",
     ),
     EcmwfProductInfo(
+        id="medium-2mt-wind30",
+        name="[confirme] Temperature 2 m + vent",
+        description="Temperature a 2 metres et vent.",
+    ),
+    EcmwfProductInfo(
         id="medium-uv-rh",
         name="Vent + humidite relative",
         description="Vent et humidite relative a un niveau de pression donne (medium range).",

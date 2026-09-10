@@ -10,8 +10,8 @@ export interface SynopticParameter {
 // via le bouton "Download" de chaque carte reelle sur charts.ecmwf.int
 // (contrairement aux versions precedentes de ce fichier, basees sur une
 // mauvaise source et jamais verifiees). Restent modifiables dans l'UI si
-// un identifiant se revele incorrect ou si un produit plus specifique
-// est trouve plus tard (ex: pour "altitude").
+// un identifiant se revele incorrect, ou si un produit plus specifique
+// est trouve plus tard (ex: une carte "altitude" distincte de Z500).
 export const SYNOPTIC_PARAMETERS: SynopticParameter[] = [
   {
     id: "z500",
@@ -44,13 +44,8 @@ export const SYNOPTIC_PARAMETERS: SynopticParameter[] = [
   },
   {
     id: "temperature",
-    label: "Temperature",
-    // A RECONFIRMER : indique comme identique a Z500/T850, ce qui est
-    // physiquement surprenant pour une carte de temperature (2m attendue).
-    // Verifier sur charts.ecmwf.int si un produit dedie existe (ex: 2t).
-    product: "medium-z500-t850",
-    description:
-      "Produit a reconfirmer : identique a Z500/T850 d'apres la derniere verification, " +
-      "ce qui semble etre une erreur - a corriger si un produit de temperature dedie existe.",
+    label: "Temperature 2 m + vent",
+    product: "medium-2mt-wind30",
+    description: "Temperature a 2 m et vent.",
   },
 ];
