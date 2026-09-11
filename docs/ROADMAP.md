@@ -31,14 +31,22 @@ d'expertise meteo (voir `docs/ARCHITECTURE.md`) :
 2. **Calage des modeles** (comparaison satellite/radar) - a faire. Prevu :
    comparer visuellement une sortie de modele a une observation reelle
    au meme instant, pour juger de la qualite de l'initialisation.
-3. **Analyse synoptique** (fait) - `SynopticAnalysis.tsx` charge
-   automatiquement les 8 echeances J a J+7 (pas de 24h) d'un parametre
-   ECMWF Open Charts au choix (Z500, surface, altitude, precipitation,
-   temperature - voir `frontend/src/synopticProducts.ts`), et les ajoute
-   directement a la sequence de cartes pour analyse par les agents.
+3. **Analyse synoptique** (fait) - `SynopticAnalysis.tsx` permet de
+   **cocher plusieurs champs a croiser** (Z500, surface, altitude,
+   precipitation, temperature - voir `frontend/src/synopticProducts.ts`,
+   tous coches par defaut) et charge automatiquement les 8 echeances J a
+   J+7 (pas de 24h) de chacun, groupees par echeance dans la sequence de
+   cartes. Le "base time" (run de reference) est **detecte
+   automatiquement** aupres d'ECMWF (dernier run reellement publie,
+   endpoint `/api/ecmwf/latest-run`) plutot qu'estime depuis l'horloge
+   locale.
 4. **Comparaison modeles / ensemble** - a faire. Prevu : comparer
    plusieurs modeles (ex: HRES vs ENS, ou ECMWF vs un autre centre) et/ou
    visualiser la dispersion d'ensemble (mean-spread, probabilite).
+
+Autre amelioration transverse (fait) : les reponses des agents sont
+rendues en Markdown (`react-markdown`) dans `AnalysisResult.tsx` au lieu
+de texte brut.
 
 ## Etape 1 - Faire tourner le prototype en local
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, Response
 
 from app.models.schemas import EcmwfProductInfo
-from app.services.ecmwf_service import SUGGESTED_PRODUCTS, get_chart_image
+from app.services.ecmwf_service import SUGGESTED_PRODUCTS, get_chart_image, get_latest_run_time
 
 router = APIRouter(prefix="/api/ecmwf", tags=["ecmwf"])
 
@@ -9,6 +9,21 @@ router = APIRouter(prefix="/api/ecmwf", tags=["ecmwf"])
 @router.get("/products", response_model=list[EcmwfProductInfo])
 async def list_products() -> list[EcmwfProductInfo]:
     return SUGGESTED_PRODUCTS
+
+
+@router.get("/latest-run")
+async def latest_run(
+    reference_product: str = Query(
+        "medium-mslp-wind850", description="Produit utilise pour sonder le dernier run publie"
+    ),
+) -> dict[str, str]:
+    try:
+        base_time = await get_latest_run_time(reference_product)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=502, detail=f"Impossible de determiner le dernier run ECMWF: {exc}"
+        ) from exc
+    return {"base_time": base_time}
 
 
 @router.get("/chart")

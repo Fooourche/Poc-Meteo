@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+
 import type { AgentAnalysis } from "../types";
 
 interface Props {
@@ -28,7 +30,9 @@ export function AnalysisResult({ results, loading }: Props) {
           {result.error ? (
             <p className="error">Erreur : {result.error}</p>
           ) : (
-            <p>{result.analysis}</p>
+            <div className="markdown-content">
+              <ReactMarkdown>{result.analysis}</ReactMarkdown>
+            </div>
           )}
         </article>
       ))}

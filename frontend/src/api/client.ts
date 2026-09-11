@@ -98,3 +98,12 @@ export async function fetchEcmwfChart(params: EcmwfChartParams): Promise<Blob> {
   }
   return response.blob();
 }
+
+export async function fetchLatestEcmwfRun(referenceProduct?: string): Promise<string> {
+  const query = referenceProduct
+    ? `?reference_product=${encodeURIComponent(referenceProduct)}`
+    : "";
+  const response = await fetch(apiUrl(`/api/ecmwf/latest-run${query}`));
+  const data = await handle<{ base_time: string }>(response);
+  return data.base_time;
+}

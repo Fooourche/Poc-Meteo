@@ -58,7 +58,21 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 - `app/api/routes_weather.py` : `GET /api/weather/forecast?latitude=&longitude=`.
 - `app/api/routes_ecmwf.py` : `GET /api/ecmwf/products` (suggestions),
   `GET /api/ecmwf/chart?product=&base_time=&valid_time=&projection=&level=`
-  (proxy image, evite le CORS et garde l'appel externe cote backend).
+  (proxy image, evite le CORS et garde l'appel externe cote backend),
+  `GET /api/ecmwf/latest-run?reference_product=` (voir ci-dessous).
+
+### Detection du dernier run ECMWF publie
+
+Quand on interroge un produit sans `base_time`/`valid_time`, l'API Open
+Charts renvoie le dernier run reellement disponible, avec une description
+du type `"Base time: Wed 19 Oct 2022 00 UTC ..."` (verifie via le
+notebook officiel `Explore_the_opencharts_API.ipynb`). `ecmwf_service.get_latest_run_time()`
+exploite ce mecanisme pour renvoyer un `base_time` ISO fiable, plus exact
+qu'une estimation basee sur l'horloge locale (les runs 00Z/12Z sont
+publies avec quelques heures de delai variable). Le frontend
+(`SynopticAnalysis.tsx`) l'appelle automatiquement au chargement de la
+page, avec un bouton pour redeclencher la detection et un repli sur
+l'estimation horloge si l'appel echoue.
 
 ## Frontend (`frontend/`)
 
@@ -93,7 +107,10 @@ Anthropic (Open-Meteo et ECMWF Open Charts sont publiques, sans cle).
 - `src/components/AgentSelector.tsx` : selection d'un ou plusieurs agents
   IA a interroger.
 - `src/components/AnalysisResult.tsx` : affichage cote-a-cote des reponses
-  de chaque agent selectionne.
+  de chaque agent selectionne, rendues en **Markdown** (`react-markdown`)
+  plutot qu'en texte brut - Claude formate naturellement ses reponses en
+  Markdown (titres, listes, gras...), qui etait auparavant affiche tel
+  quel (syntaxe visible non interpretee).
 - `src/api/client.ts` : appels HTTP vers le backend.
 
 ## Sequences et combinaisons de cartes

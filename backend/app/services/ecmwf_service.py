@@ -18,11 +18,24 @@ nommage, API differente). L'identifiant de produit reste un champ libre
 cote API : en cas de 404, le corriger directement dans l'UI.
 """
 
+import re
+from datetime import datetime, timezone
+
 import httpx
 
 from app.models.schemas import EcmwfProductInfo
 
 ECMWF_API_URL = "https://charts.ecmwf.int/opencharts-api/v1/"
+
+# Quand on n'indique ni base_time ni valid_time, l'API renvoie le dernier
+# run disponible (verifie via le notebook officiel
+# ecmwf/notebook-examples/opencharts/Explore_the_opencharts_API.ipynb).
+# La description de la reponse contient un texte du type :
+# "Base time: Wed 19 Oct 2022 00 UTC Valid time: Wed 19 Oct 2022 00 UTC (+0h) Area : Europe"
+# d'ou l'on extrait le run reellement publie, plus fiable qu'une estimation
+# a partir de l'horloge locale (les runs 00Z/12Z sont publies avec un delai
+# variable).
+_BASE_TIME_PATTERN = re.compile(r"Base time:\s*(.+?)\s+UTC\b")
 
 SUGGESTED_PRODUCTS: list[EcmwfProductInfo] = [
     EcmwfProductInfo(
@@ -94,3 +107,23 @@ async def get_chart_image(
 
     media_type = _MEDIA_TYPES.get(image_format, "image/png")
     return image_response.content, media_type
+
+
+def _parse_base_time(description: str) -> str:
+    match = _BASE_TIME_PATTERN.search(description)
+    if not match:
+        raise ValueError(f"Impossible d'extraire le 'Base time' de : {description!r}")
+    parsed = datetime.strptime(match.group(1), "%a %d %b %Y %H").replace(tzinfo=timezone.utc)
+    return parsed.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+async def get_latest_run_time(reference_product: str) -> str:
+    """Interroge un produit sans base_time/valid_time pour connaitre le
+    dernier run ECMWF reellement publie et disponible."""
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        response = await client.get(f"{ECMWF_API_URL}products/{reference_product}/")
+        response.raise_for_status()
+        data = response.json()
+
+    description = data["data"]["attributes"]["description"]
+    return _parse_base_time(description)

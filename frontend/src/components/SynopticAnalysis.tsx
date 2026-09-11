@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { fetchEcmwfChart } from "../api/client";
+import { fetchEcmwfChart, fetchLatestEcmwfRun } from "../api/client";
 import { SYNOPTIC_PARAMETERS } from "../synopticProducts";
 
 interface Props {
@@ -9,11 +9,14 @@ interface Props {
 
 const STEP_HOURS = [0, 24, 48, 72, 96, 120, 144, 168];
 
-// Les runs HRES ECMWF sont a 00Z et 12Z. On s'aligne sur le dernier run
-// "rond" plutot qu'une heure arbitraire (reduit un motif frequent de 404 :
-// base_time hors-run). Le run le plus recent peut ne pas etre encore
-// publie (~6-9h de delai) : ajustez manuellement au champ si besoin.
-function latestRunTime(): string {
+type RunStatus = "detecting" | "detected" | "failed" | "manual";
+
+// Estimation de secours (horloge locale) si la detection automatique
+// echoue : les runs HRES ECMWF sont a 00Z et 12Z, on s'aligne sur le
+// dernier run "rond". Peut etre en avance sur le run reellement publie
+// (delai de quelques heures) : d'ou la detection automatique ci-dessous,
+// plus fiable.
+function fallbackRunTime(): string {
   const date = new Date();
   const runHour = date.getUTCHours() >= 12 ? 12 : 0;
   date.setUTCHours(runHour, 0, 0, 0);
@@ -27,12 +30,31 @@ function addHours(isoString: string, hours: number): string {
 }
 
 export function SynopticAnalysis({ onAddImage }: Props) {
-  const [selectedIds, setSelectedIds] = useState<string[]>([SYNOPTIC_PARAMETERS[0].id]);
-  const [baseTime, setBaseTime] = useState(latestRunTime());
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    SYNOPTIC_PARAMETERS.map((param) => param.id),
+  );
+  const [baseTime, setBaseTime] = useState(fallbackRunTime());
+  const [runStatus, setRunStatus] = useState<RunStatus>("detecting");
   const [projection, setProjection] = useState("opencharts_central_europe");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+
+  async function detectLatestRun() {
+    setRunStatus("detecting");
+    try {
+      const detected = await fetchLatestEcmwfRun();
+      setBaseTime(detected);
+      setRunStatus("detected");
+    } catch {
+      setRunStatus("failed");
+    }
+  }
+
+  useEffect(() => {
+    detectLatestRun();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function toggleParameter(id: string) {
     setSelectedIds((current) =>
@@ -117,17 +139,39 @@ export function SynopticAnalysis({ onAddImage }: Props) {
       <div className="coords-row">
         <label>
           Base time (run, UTC)
-          <input value={baseTime} onChange={(e) => setBaseTime(e.target.value)} />
+          <input
+            value={baseTime}
+            onChange={(e) => {
+              setBaseTime(e.target.value);
+              setRunStatus("manual");
+            }}
+          />
         </label>
         <label>
           Projection
           <input value={projection} onChange={(e) => setProjection(e.target.value)} />
         </label>
       </div>
+
       <p className="agent-description">
-        Les runs ECMWF sont a 00Z/12Z et publies avec quelques heures de delai. Si le run le
-        plus recent echoue partout, essayez le run precedent (soustrayez 12h). Pour corriger un
-        identifiant de produit errone, utilisez "Autres sources &gt; Carte ECMWF Open Charts".
+        {runStatus === "detecting" && "Detection du dernier run ECMWF publie..."}
+        {runStatus === "detected" &&
+          "Run detecte automatiquement aupres d'ECMWF (le plus recent reellement publie)."}
+        {runStatus === "failed" &&
+          "Detection automatique indisponible : estimation via l'horloge locale (00Z/12Z), a corriger manuellement si besoin."}
+        {runStatus === "manual" && "Base time modifiee manuellement."}{" "}
+        <button
+          type="button"
+          onClick={detectLatestRun}
+          disabled={runStatus === "detecting"}
+          className="link-button"
+        >
+          Redetecter le dernier run
+        </button>
+      </p>
+      <p className="agent-description">
+        Pour corriger un identifiant de produit errone, utilisez "Autres sources &gt; Carte
+        ECMWF Open Charts".
       </p>
 
       <button onClick={handleLoadWeek} disabled={loading || selectedIds.length === 0}>
